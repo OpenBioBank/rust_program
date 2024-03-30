@@ -1,17 +1,26 @@
 //!Defines the program instructions and parameters
 
-use solana_program::{program_error::ProgramError, pubkey::Pubkey};
-
-use borsh::{BorshDeserialize, BorshSchema, BorshSerialize};
-
-#[derive(BorshSerialize, BorshDeserialize, BorshSchema)]
-pub struct MintNftInstruction {
-    pub user_wallet_address: Pubkey,
-    pub cid: String,
+use solana_program::pubkey::Pubkey;
+#[allow(dead_code)]
+#[derive(Debug)]
+pub enum Instruction {
+    MintNft {
+        //Data required to mint NFT
+        metadata: String,
+    },
+    UpdateNftMetadata {
+        // Update metadata with new values required
+        new_metadata: String,
+    },
+    TransferOwnership {
+        // Data required to transfer ownership, such as the new owner’s address
+        new_owner: Pubkey,
+    },
+    // more....
 }
 
-impl MintNftInstruction {
-    pub fn unpack(_input: &[u8]) -> Result<Self, ProgramError> {
+impl Instruction {
+    pub fn try_from_slice(_instruction_data: &[u8]) -> Instruction {
         todo!()
     }
 }

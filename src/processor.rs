@@ -2,18 +2,26 @@
 
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
-use crate::instruction::MintNftInstruction;
-
-pub fn process(
+pub fn transfer_ownership(
     _program_id: &Pubkey,
-    _accounts: &[AccountInfo],
-    instruction_data: &[u8],
+    _accounts: &[AccountInfo<'_>],
+    _new_owner: &Pubkey,
 ) -> ProgramResult {
-    let _instruction = MintNftInstruction::unpack(instruction_data)?;
+    todo!()
+}
 
-    // Verify logic such as project party address...
+pub fn update_metadata(
+    _program_id: &Pubkey,
+    _accounts: &[AccountInfo<'_>],
+    _new_metadata: String,
+) -> ProgramResult {
+    todo!()
+}
 
-    //Minting NFT logic...
-
-    Ok(())
+pub fn mint_nft(
+    _program_id: &Pubkey,
+    _accounts: &[AccountInfo<'_>],
+    _metadata: String,
+) -> ProgramResult {
+    todo!()
 }
