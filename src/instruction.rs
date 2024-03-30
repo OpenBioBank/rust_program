@@ -11,7 +11,7 @@ pub struct MintNftInstruction {
 }
 
 impl MintNftInstruction {
-    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+    pub fn unpack(_input: &[u8]) -> Result<Self, ProgramError> {
         todo!()
     }
 }
