@@ -2,7 +2,7 @@
 name = "rust_programs"
 version = "0.1.0"
 edition = "2021"
-authors = ["Alain <zhengze01@gmail.com>"]
+authors = ["Alain  <zhengze01@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
