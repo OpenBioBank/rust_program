@@ -1,11 +1,17 @@
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, msg, pubkey::Pubkey};
+//!Defines the program instructions and parameters
 
-pub fn process_instruction(
-    _program_id: &Pubkey, // Public key of the account the hello world program was loaded into
-    _accounts: &[AccountInfo], // The account to say hello to
-    _instruction_data: &[u8], // Ignored, all helloworld instructions are hellos
-) -> ProgramResult {
-    msg!("Hello World Rust program entrypoint");
+use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 
-    Ok(())
+use borsh::{BorshDeserialize, BorshSchema, BorshSerialize};
+
+#[derive(BorshSerialize, BorshDeserialize, BorshSchema)]
+pub struct MintNftInstruction {
+    pub user_wallet_address: Pubkey,
+    pub cid: String,
+}
+
+impl MintNftInstruction {
+    pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
+        todo!()
+    }
 }
