@@ -6,6 +6,7 @@ mod state;
 
 use instruction::Instruction;
 
+use processor::{authorize_account, create_new, delete, update_url};
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
 };
@@ -30,20 +31,13 @@ fn process_instruction(
             authorize,
             url,
         } => {
-            // Execute program code to create a note
-            todo!()
+            create_new(id, owner, creator, description, authorize, url)?;
         }
-        Instruction::Update { url } => {
-            // Execute program code to update a note
-            todo!()
-        }
+
         Instruction::Delete { id } => {
             // Execute program code to delete a note
-            todo!()
+            delete()?;
         }
-        Instruction::Authorize { authorize } => {
-            //Authorize
-            todo!()
-        }
-    }
+    };
+    Ok(())
 }

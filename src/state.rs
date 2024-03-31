@@ -7,9 +7,13 @@ use solana_program::{
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct Nft {
-    pub is_initialized: bool,
-    pub owner: Pubkey,
-    pub metadata_uri: String,
+    id: u64,
+    description: String,
+    owner: String,
+    creator: String,
+    authorize: bool,
+    url: String,
+    is_initialized: bool,
 }
 
 impl Sealed for Nft {}

@@ -13,14 +13,9 @@ pub enum Instruction {
         authorize: bool,
         url: String,
     },
-    Update {
-        url: String,
-    },
+
     Delete {
         id: u64,
-    },
-    Authorize {
-        authorize: bool,
     },
 }
 
@@ -46,11 +41,7 @@ impl Instruction {
                 authorize: payload.authorize,
                 url: payload.url,
             },
-            1 => Self::Update { url: payload.url },
-            2 => Self::Delete { id: payload.id },
-            3 => Self::Authorize {
-                authorize: payload.authorize,
-            },
+            1 => Self::Delete { id: payload.id },
 
             _ => return Err(ProgramError::InvalidInstructionData),
         })
