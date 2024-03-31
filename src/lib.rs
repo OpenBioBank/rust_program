@@ -5,7 +5,6 @@ mod processor;
 mod state;
 
 use instruction::Instruction;
-use processor::{mint_nft, transfer_ownership, update_metadata};
 
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
@@ -14,21 +13,37 @@ use solana_program::{
 entrypoint!(process_instruction);
 
 fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
+    _program_id: &Pubkey,
+    _accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
     // Parse instruction data into NftInstruction enumeration
-    let instruction = Instruction::try_from_slice(instruction_data);
-
+    // Call unpack to deserialize instruction_data
+    let instruction = Instruction::unpack(instruction_data)?;
+    // Match the returned data struct to what you expect
     match instruction {
-        Instruction::MintNft { metadata } => mint_nft(program_id, accounts, metadata),
-        Instruction::UpdateNftMetadata { new_metadata } => {
-            update_metadata(program_id, accounts, new_metadata)
+        Instruction::Create {
+            id,
+            owner,
+            creator,
+            description,
+            authorize,
+            url,
+        } => {
+            // Execute program code to create a note
+            todo!()
         }
-
-        Instruction::TransferOwnership { new_owner } => {
-            transfer_ownership(program_id, accounts, &new_owner)
+        Instruction::Update { url } => {
+            // Execute program code to update a note
+            todo!()
+        }
+        Instruction::Delete { id } => {
+            // Execute program code to delete a note
+            todo!()
+        }
+        Instruction::Authorize { authorize } => {
+            //Authorize
+            todo!()
         }
     }
 }
