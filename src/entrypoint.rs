@@ -1,6 +1,6 @@
 use crate::instruction::Instruction;
 
-use crate::processor::{authorize_account, create_new, delete, update_url};
+use crate::processor::{create_new, delete};
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
 };

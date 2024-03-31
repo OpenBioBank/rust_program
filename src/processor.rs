@@ -20,19 +20,8 @@ pub fn create_new(
     let rent_lamports = rent.minimum_balance(account_len);
     todo!()
 }
-pub fn update_url() -> ProgramResult {
-    //Update url data
-    todo!()
-}
+
 pub fn delete() -> ProgramResult {
     //delete account
-    todo!()
-}
-pub fn authorize_account() -> ProgramResult {
-    //  Update authorize field
-    todo!()
-}
-pub fn no_authorize() -> ProgramResult {
-    //  Update authorize field
     todo!()
 }
