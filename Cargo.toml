@@ -8,7 +8,7 @@ authors = ["Alain  <zhengze01@gmail.com>"]
 
 [dependencies]
 borsh = { version = "1.4.0", features = ["std", "derive"] }
-solana-program = "1.18.9"
+solana-program = "=1.18.9"
 thiserror = "1.0.58"
 
 [features]

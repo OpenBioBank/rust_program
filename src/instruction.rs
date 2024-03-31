@@ -14,9 +14,7 @@ pub enum Instruction {
         url: String,
     },
 
-    Delete {
-        id: u64,
-    },
+    FindCid 
 }
 
 impl Instruction {
@@ -41,7 +39,9 @@ impl Instruction {
                 authorize: payload.authorize,
                 url: payload.url,
             },
-            1 => Self::Delete { id: payload.id },
+
+            1 => Self::FindCid,
+            
 
             _ => return Err(ProgramError::InvalidInstructionData),
         })
