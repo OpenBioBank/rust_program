@@ -75,7 +75,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
             token_mint.key,
             mint_auth.key,
             Option::None,
-            9,
+            0,
         )?,
         &[token_mint.clone(), sysvar_rent.clone(), mint_auth.clone()],
         &[&[b"token_mint", &[mint_bump]]],
@@ -128,7 +128,50 @@ pub fn create_new(
     // Calculate rent required
     let rent = Rent::get()?;
     let rent_lamports = rent.minimum_balance(account_len);
-    todo!()
+
+    msg!("deriving mint authority");
+    let (mint_pda, _mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+    let (mint_auth_pda, mint_auth_bump) =
+        Pubkey::find_program_address(&[b"token_auth"], program_id);
+
+    if *token_mint.key != mint_pda {
+        msg!("Incorrect token mint");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    if *mint_auth.key != mint_auth_pda {
+        msg!("Mint passed in and mint derived do not match");
+        return Err(ReviewError::InvalidPDA.into());
+    }
+
+    if *user_ata.key != get_associated_token_address(initializer.key, token_mint.key) {
+        msg!("Incorrect token mint");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    if *token_program.key != TOKEN_PROGRAM_ID {
+        msg!("Incorrect token program");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    msg!("Minting 10 tokens to User associated token account");
+    invoke_signed(
+        // instruction
+        &spl_token::instruction::mint_to(
+            token_program.key,
+            token_mint.key,
+            user_ata.key,
+            mint_auth.key,
+            &[],
+            10 * LAMPORTS_PER_SOL,
+        )?,
+        // account_infos
+        &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
+        // seeds
+        &[&[b"token_auth", &[mint_auth_bump]]],
+    )?;
+
+    Ok(())
 }
 
 pub fn find_cid() -> ProgramResult {
