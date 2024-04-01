@@ -2,13 +2,16 @@
 name = "rust_programs"
 version = "0.1.0"
 edition = "2021"
-authors = ["Alain  <zhengze01@gmail.com>"]
+authors = ["Alain  <zhengze01@gmail.com>", "KZGAO <gph13911138748@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 borsh = { version = "1.4.0", features = ["std", "derive"] }
+mpl-token-metadata = "4.1.2"
 solana-program = "1.18.9"
+spl-associated-token-account = "3.0.2"
+spl-token = "4.0.1"
 thiserror = "1.0.58"
 
 [features]

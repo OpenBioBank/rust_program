@@ -14,7 +14,9 @@ pub enum Instruction {
         url: String,
     },
 
-    FindCid 
+    FindCid,
+
+    initializeMintAccount, 
 }
 
 impl Instruction {
@@ -41,6 +43,7 @@ impl Instruction {
             },
 
             1 => Self::FindCid,
+            2 => Self::initializeMintAccount,
             
 
             _ => return Err(ProgramError::InvalidInstructionData),

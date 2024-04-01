@@ -1,6 +1,6 @@
 use crate::instruction::Instruction;
 
-use crate::processor::{create_new, find_cid};
+use crate::processor::{create_new, find_cid, initialize_token_mint};
 use solana_program::program_error::ProgramError;
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
@@ -30,6 +30,7 @@ fn process_instruction(
         },
 
         Instruction::FindCid => find_cid()?,
+        Instruction::initializeMintAccount => initialize_token_mint(program_id, accounts)?,
 
         _ => Err(ProgramError::InvalidInstructionData)?,
 

@@ -7,6 +7,8 @@ use thiserror::Error;
 pub enum MintingError {
     #[error("InvalidInstruction")]
     InvalidInstruction,
+    #[error("Accounts do not match")]
+    IncorrectAccountError,
 }
 
 impl From<MintingError> for ProgramError {
