@@ -136,22 +136,22 @@ pub fn create_new(
 
     if *token_mint.key != mint_pda {
         msg!("Incorrect token mint");
-        return Err(ReviewError::IncorrectAccountError.into());
+        return Err(MintingError::IncorrectAccountError.into());
     }
 
     if *mint_auth.key != mint_auth_pda {
         msg!("Mint passed in and mint derived do not match");
-        return Err(ReviewError::InvalidPDA.into());
+        return Err(MintingError::InvalidPDA.into());
     }
 
     if *user_ata.key != get_associated_token_address(initializer.key, token_mint.key) {
         msg!("Incorrect token mint");
-        return Err(ReviewError::IncorrectAccountError.into());
+        return Err(MintingError::IncorrectAccountError.into());
     }
 
     if *token_program.key != TOKEN_PROGRAM_ID {
         msg!("Incorrect token program");
-        return Err(ReviewError::IncorrectAccountError.into());
+        return Err(MintingError::IncorrectAccountError.into());
     }
 
     msg!("Minting 10 tokens to User associated token account");
