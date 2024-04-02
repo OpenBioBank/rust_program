@@ -26,13 +26,18 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     let token_program = next_account_info(account_info_iter)?;
     let sysvar_rent = next_account_info(account_info_iter)?;
 
-    let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
-    let (mint_auth_pda, _mint_auth_bump) =
-        Pubkey::find_program_address(&[b"token_auth"], program_id);
+    //create mint_pda
+    msg!("deriving mint authority");
+    //mint_pda = initializer + programId
+    let (mint_pda, mint_bump) = Pubkey::find_program_address(&[initializer.key.as_ref()], program_id);
+    
+    //mint_ayth_pda = mint_pda + programId
+    let (mint_auth_pda, mint_auth_bump) =
+        Pubkey::find_program_address(&[mint_pda.as_ref()], program_id);
 
     msg!("Token mint: {:?}", mint_pda);
     msg!("Mint authority: {:?}", mint_auth_pda);
-
+    
     if mint_pda != *token_mint.key {
         msg!("Incorrect token mint account");
         return Err(MintingError::IncorrectAccountError.into());
@@ -51,12 +56,13 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     let rent = Rent::get()?;
     let rent_lamports = rent.minimum_balance(82);
 
+    //create mint_pda
     invoke_signed(
         &system_instruction::create_account(
             initializer.key,
             token_mint.key,
             rent_lamports,
-            82,
+            100,
             token_program.key,
         ),
         &[
@@ -64,21 +70,22 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
             token_mint.clone(),
             system_program.clone(),
         ],
-        &[&[b"token_mint", &[mint_bump]]],
+        &[&[initializer.key.as_ref(), &[mint_bump]]],
     )?;
 
     msg!("Created token mint account");
 
+    //initialize
     invoke_signed(
         &initialize_mint(
             token_program.key,
             token_mint.key,
             mint_auth.key,
             Option::None,
-            0,
+            9,
         )?,
         &[token_mint.clone(), sysvar_rent.clone(), mint_auth.clone()],
-        &[&[b"token_mint", &[mint_bump]]],
+        &[&[initializer.key.as_ref(), &[mint_bump]]],
     )?;
 
     msg!("Initialized token mint");
@@ -105,18 +112,6 @@ pub fn create_new(
     let user_ata = next_account_info(account_info_iter)?;
     let system_program = next_account_info(account_info_iter)?;
     let token_program = next_account_info(account_info_iter)?;
-
-    //创建pda账户
-
-    //用program_id和钱包的acount 创建一个mint Nft 的账户
-
-    //find_program_address()
-    //计算rent length
-    //invoke_signed(create_account(创建账户), account_infos, signers_seeds)
-
-    //用wallet account + mint NFT生成一个 接收新铸造Nft的账户
-
-    //铸造Nft
 
     // To create a new account in our plan we must:
     // Calculate the space and rent required for the account
