@@ -82,7 +82,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
             token_mint.key,
             mint_auth.key,
             Option::None,
-            9,
+            0,
         )?,
         &[token_mint.clone(), sysvar_rent.clone(), mint_auth.clone()],
         &[&[initializer.key.as_ref(), &[mint_bump]]],
@@ -107,8 +107,34 @@ pub fn create_new(
     let account_info_iter = &mut accounts.iter();
     
     let initializer = next_account_info(account_info_iter)?;
+
+    //fronted:
+    // const [tokenMint] = await web3.PublicKey.findProgramAddress(
+    //     [Buffer.from("token_mint")],
+    //     new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+    // )
+
+    // const [mintAuth] = await web3.PublicKey.findProgramAddress(
+    //     [Buffer.from("token_auth")],
+    //     new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
+    // )
     let token_mint = next_account_info(account_info_iter)?;
     let mint_auth = next_account_info(account_info_iter)?;
+
+    //fronted:
+    // const userAta = await getAssociatedTokenAddress(tokenMint, publicKey)
+    // const ataAccount = await connection.getAccountInfo(userAta)
+
+    // if (!ataAccount) {
+    //     const ataInstruction = createAssociatedTokenAccountInstruction(
+    //         publicKey,
+    //         userAta,
+    //         publicKey,
+    //         tokenMint
+    //     )
+
+    //     transaction.add(ataInstruction)
+    // }
     let user_ata = next_account_info(account_info_iter)?;
     let system_program = next_account_info(account_info_iter)?;
     let token_program = next_account_info(account_info_iter)?;
@@ -118,7 +144,8 @@ pub fn create_new(
     // Have an address to assign new accounts to
     // Call the system program to create a new account
     let account_len: usize =
-        8 + (4 + description.len()) + (4 + owner.len()) + (4 + owner.len()) + 1 + (4 + owner.len());
+        8 + (4 + description.len()) + (4 + owner.len()) + (4 + owner.len()) + 1 + (4 + owner.len())
+        + (4 + creator.len()) + (4 + url.len()) ;
 
     // Calculate rent required
     let rent = Rent::get()?;
@@ -149,7 +176,7 @@ pub fn create_new(
         return Err(MintingError::IncorrectAccountError.into());
     }
 
-    msg!("Minting 10 tokens to User associated token account");
+    msg!("Minting 1 tokens to User associated token account");
     invoke_signed(
         // instruction
         &spl_token::instruction::mint_to(
@@ -158,7 +185,7 @@ pub fn create_new(
             user_ata.key,
             mint_auth.key,
             &[],
-            10 * LAMPORTS_PER_SOL,
+            1,
         )?,
         // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
