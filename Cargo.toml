@@ -10,12 +10,12 @@ authors = ["Alain  <zhengze01@gmail.com>", "KZGAO <gph13911138748@gmail.com>"]
 borsh = { version = "1.4.0", features = ["std", "derive"] }
 mpl-token-metadata = "4.1.2"
 solana-program = "1.18.9"
-spl-associated-token-account = "3.0.2"
-spl-token = "4.0.1"
+spl-associated-token-account = {version = "3.0.2", features = [ "no-entrypoint" ]}
+spl-token = {version = "4.0.1", features = [ "no-entrypoint" ]}
 thiserror = "1.0.58"
 
-[features]
-no-entrypoint = []
+
+
 
 [lib]
 crate-type = ["cdylib", "lib"]

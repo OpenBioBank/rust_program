@@ -1,6 +1,6 @@
 use crate::error::MintingError;
-use crate::state::Nft;
 use borsh::BorshSerialize;
+use solana_program::address_lookup_table::program;
 use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program::{
     account_info::{next_account_info, AccountInfo}, 
@@ -15,6 +15,7 @@ use solana_program::{
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
 use std::convert::TryInto;
+use mpl_token_metadata::programs;
 
 pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
@@ -22,6 +23,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     let initializer = next_account_info(account_info_iter)?;
     let token_mint = next_account_info(account_info_iter)?;
     let mint_auth = next_account_info(account_info_iter)?;
+    let token_metadata = next_account_info(account_info_iter)?;
     let system_program = next_account_info(account_info_iter)?;
     let token_program = next_account_info(account_info_iter)?;
     let sysvar_rent = next_account_info(account_info_iter)?;
@@ -90,6 +92,37 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
 
     msg!("Initialized token mint");
 
+    msg!("Initialized token_metadata...");
+
+    //metadata = token_mint + mint_auth + program_id
+    let (metadata_pda, metadata_bump) = Pubkey::find_program_address(&[token_mint.key.as_ref(),mint_auth.key.as_ref()], program_id);
+    
+    if metadata_pda != *token_metadata.key {
+        msg!("Incorrect token metadata account");
+        return Err(MintingError::IncorrectAccountError.into());
+    }
+
+    let rent = Rent::get()?;
+    let rent_lamports = rent.minimum_balance(82);
+
+    //create metadata
+    invoke_signed(
+        &system_instruction::create_account(
+            initializer.key,
+            token_mint.key,
+            rent_lamports,
+            100,
+            token_program.key,
+        ),
+        &[
+            initializer.clone(),
+            token_mint.clone(),
+            system_program.clone(),
+        ],
+        &[&[initializer.key.as_ref(), &[mint_bump]]],
+    )?;
+
+
     Ok(())
 }
 
@@ -152,9 +185,9 @@ pub fn create_new(
     let rent_lamports = rent.minimum_balance(account_len);
 
     msg!("deriving mint authority");
-    let (mint_pda, _mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+    let (mint_pda, _mint_bump) = Pubkey::find_program_address(&[initializer.key.as_ref()], program_id);
     let (mint_auth_pda, mint_auth_bump) =
-        Pubkey::find_program_address(&[b"token_auth"], program_id);
+        Pubkey::find_program_address(&[mint_pda.as_ref()], program_id);
 
     if *token_mint.key != mint_pda {
         msg!("Incorrect token mint");

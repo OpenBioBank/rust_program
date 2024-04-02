@@ -5,8 +5,25 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Data {
+    Cid: String,//id can be used to find the off-chain data
+    description: String,//RGB image
+    //creator can not be deplayed
+    url: String,
+}
+
+#[repr(C)]
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
+pub struct CreateMetadataAccountArgs {
+    data: Data,
+    is_mutable: bool,
+}
+
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct Nft {
+pub struct MetadataAccount {
     id: u64,
     description: String,
     owner: String,
@@ -16,15 +33,15 @@ pub struct Nft {
     is_initialized: bool,
 }
 
-impl Sealed for Nft {}
+impl Sealed for MetadataAccount {}
 
-impl IsInitialized for Nft {
+impl IsInitialized for MetadataAccount {
     fn is_initialized(&self) -> bool {
         self.is_initialized
     }
 }
 
-impl Pack for Nft {
+impl Pack for MetadataAccount {
     const LEN: usize = 1 + 32 + 64; // Example size, adjust based on actual metadata_uri length
 
     fn pack_into_slice(&self, dst: &mut [u8]) {

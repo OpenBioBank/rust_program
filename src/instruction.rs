@@ -16,7 +16,7 @@ pub enum Instruction {
 
     FindCid,
 
-    initializeMintAccount, 
+    InitializeMintAccount, 
 }
 
 impl Instruction {
@@ -43,7 +43,7 @@ impl Instruction {
             },
 
             1 => Self::FindCid,
-            2 => Self::initializeMintAccount,
+            2 => Self::InitializeMintAccount,
             
 
             _ => return Err(ProgramError::InvalidInstructionData),
