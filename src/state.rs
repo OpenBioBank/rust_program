@@ -2,13 +2,13 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
     program_pack::{IsInitialized, Pack, Sealed},
-    pubkey::Pubkey,
+//    pubkey::Pubkey,
 };
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Data {
-    Cid: String,//id can be used to find the off-chain data
+    cid: String,//id can be used to find the off-chain data
     description: String,//RGB image
     //creator can not be deplayed
     url: String,
@@ -24,13 +24,15 @@ pub struct CreateMetadataAccountArgs {
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct MetadataAccount {
-    id: u64,
-    description: String,
-    owner: String,
-    creator: String,
-    authorize: bool,
-    url: String,
-    is_initialized: bool,
+    pub id: u64,
+    pub description: String,
+    pub owner: String,
+    pub creator: String,
+    pub authorize: bool,
+    pub url: String,
+    pub is_initialized: bool,
+    pub cid: String,
+    pub is_mutable: bool,
 }
 
 impl Sealed for MetadataAccount {}

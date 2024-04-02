@@ -5,18 +5,20 @@ use solana_program::program_error::ProgramError;
 #[allow(dead_code)]
 #[derive(Debug)]
 pub enum Instruction {
-    Create {
+    InitializeMintAccount {
         id: u64,
         description: String,
         owner: String,
         creator: String,
         authorize: bool,
         url: String,
+        cid: String,
+        is_mutable: bool,
     },
 
     FindCid,
 
-    InitializeMintAccount, 
+    Create, 
 }
 
 impl Instruction {
@@ -33,17 +35,19 @@ impl Instruction {
         // Match the variant to determine which data struct is expected by
         // the function and return the TestStruct or an error
         Ok(match variant {
-            0 => Self::Create {
+            0 => Self::InitializeMintAccount {
                 id: payload.id,
                 description: payload.description,
                 owner: payload.owner,
                 creator: payload.creator,
                 authorize: payload.authorize,
                 url: payload.url,
+                cid: payload.cid,
+                is_mutable: payload.is_mutable,
             },
 
             1 => Self::FindCid,
-            2 => Self::InitializeMintAccount,
+            2 => Self::Create,
             
 
             _ => return Err(ProgramError::InvalidInstructionData),
@@ -58,4 +62,6 @@ struct InstructionPayload {
     creator: String,
     authorize: bool,
     url: String,
+    cid: String,
+    is_mutable: bool,
 }

@@ -18,20 +18,22 @@ fn process_instruction(
     let instruction = Instruction::unpack(instruction_data)?;
     // Match the returned data struct to what you expect
     match instruction {
-        Instruction::Create {
+        Instruction::InitializeMintAccount {
             id,
             owner,
             creator,
             description,
             authorize,
             url,
+            cid,
+            is_mutable,
         } => {
-            create_new(program_id, accounts, id, owner, creator, description, authorize, url)?;
+            initialize_token_mint(program_id, accounts, id, owner, creator, description, authorize, url, cid, is_mutable)?;
         },
 
         Instruction::FindCid => find_cid()?,
         
-        Instruction::InitializeMintAccount => initialize_token_mint(program_id, accounts)?,
+        Instruction::Create => create_new(program_id, accounts)?,
 
     };
     Ok(())

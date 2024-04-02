@@ -1,7 +1,9 @@
 use crate::error::MintingError;
 use borsh::BorshSerialize;
-use solana_program::address_lookup_table::program;
-use solana_program::native_token::LAMPORTS_PER_SOL;
+//use borsh::BorshSerialize;
+//use solana_program::address_lookup_table::program;
+use solana_program::borsh1::try_from_slice_unchecked;
+//use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program::{
     account_info::{next_account_info, AccountInfo}, 
     entrypoint::ProgramResult, 
@@ -14,10 +16,22 @@ use solana_program::{
 };
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::{instruction::initialize_mint, ID as TOKEN_PROGRAM_ID};
-use std::convert::TryInto;
-use mpl_token_metadata::programs;
+//use std::convert::TryInto;
+//use mpl_token_metadata::programs;
+use crate::state::MetadataAccount;
 
-pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn initialize_token_mint(
+    program_id: &Pubkey, 
+    accounts: &[AccountInfo],
+    id: u64,
+    description: String,
+    owner: String,
+    creator: String,
+    authorize: bool,
+    url: String,
+    cid: String,
+    is_mutable: bool,
+) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
 
     let initializer = next_account_info(account_info_iter)?;
@@ -34,7 +48,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     let (mint_pda, mint_bump) = Pubkey::find_program_address(&[initializer.key.as_ref()], program_id);
     
     //mint_ayth_pda = mint_pda + programId
-    let (mint_auth_pda, mint_auth_bump) =
+    let (mint_auth_pda, _mint_auth_bump) =
         Pubkey::find_program_address(&[mint_pda.as_ref()], program_id);
 
     msg!("Token mint: {:?}", mint_pda);
@@ -102,8 +116,12 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
         return Err(MintingError::IncorrectAccountError.into());
     }
 
-    let rent = Rent::get()?;
-    let rent_lamports = rent.minimum_balance(82);
+    let account_len: usize =
+        8 + (4 + description.len()) + (4 + owner.len()) + (4 + owner.len()) + 1 + (4 + owner.len())
+        + (4 + creator.len()) + (4 + url.len()) ;
+    
+        let rent = Rent::get()?;
+        let rent_lamports = rent.minimum_balance(account_len);
 
     //create metadata
     invoke_signed(
@@ -119,9 +137,23 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
             token_mint.clone(),
             system_program.clone(),
         ],
-        &[&[initializer.key.as_ref(), &[mint_bump]]],
+        &[&[initializer.key.as_ref(), token_mint.key.as_ref(),mint_auth.key.as_ref(),&[metadata_bump]]],
     )?;
 
+    msg!("Create metadata");
+    let mut account_data =
+        try_from_slice_unchecked::<MetadataAccount>(&token_metadata.data.borrow()).unwrap();
+
+    account_data.id = id;
+    account_data.description = description;
+    account_data.authorize = authorize;
+    account_data.cid = cid;
+    account_data.creator = creator;
+    account_data.owner = owner;
+    account_data.url = url;
+    account_data.is_mutable = is_mutable;
+
+    account_data.serialize(&mut &mut token_metadata.data.borrow_mut()[..])?;
 
     Ok(())
 }
@@ -129,12 +161,6 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
 pub fn create_new( 
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    id: u64,
-    description: String,
-    owner: String,
-    creator: String,
-    authorize: bool,
-    url: String,
 ) -> ProgramResult {
     //解析账户
     let account_info_iter = &mut accounts.iter();
@@ -169,20 +195,14 @@ pub fn create_new(
     //     transaction.add(ataInstruction)
     // }
     let user_ata = next_account_info(account_info_iter)?;
-    let system_program = next_account_info(account_info_iter)?;
     let token_program = next_account_info(account_info_iter)?;
 
     // To create a new account in our plan we must:
     // Calculate the space and rent required for the account
     // Have an address to assign new accounts to
     // Call the system program to create a new account
-    let account_len: usize =
-        8 + (4 + description.len()) + (4 + owner.len()) + (4 + owner.len()) + 1 + (4 + owner.len())
-        + (4 + creator.len()) + (4 + url.len()) ;
 
     // Calculate rent required
-    let rent = Rent::get()?;
-    let rent_lamports = rent.minimum_balance(account_len);
 
     msg!("deriving mint authority");
     let (mint_pda, _mint_bump) = Pubkey::find_program_address(&[initializer.key.as_ref()], program_id);
@@ -223,7 +243,7 @@ pub fn create_new(
         // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
         // seeds
-        &[&[b"token_auth", &[mint_auth_bump]]],
+        &[&[initializer.key.as_ref(), &[mint_auth_bump]]],
     )?;
 
     Ok(())
