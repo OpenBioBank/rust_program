@@ -49,7 +49,7 @@ pub fn initialize_token_mint(
     
     //mint_ayth_pda = mint_pda + programId
     let (mint_auth_pda, _mint_auth_bump) =
-        Pubkey::find_program_address(&[mint_pda.as_ref()], program_id);
+        Pubkey::find_program_address(&[token_mint.key.as_ref()], program_id);
 
     msg!("Token mint: {:?}", mint_pda);
     msg!("Mint authority: {:?}", mint_auth_pda);
@@ -86,7 +86,7 @@ pub fn initialize_token_mint(
             token_mint.clone(),
             system_program.clone(),
         ],
-        &[&[initializer.key.as_ref(),&cid.as_ref()], &[&[mint_bump]]],
+        &[&[initializer.key.as_ref(),cid.as_bytes(), &[mint_bump]]],
     )?;
 
     msg!("Created token mint account");
@@ -137,7 +137,7 @@ pub fn initialize_token_mint(
             token_metadata.clone(),
             system_program.clone(),
         ],
-        &[&[token_mint.key.as_ref(),mint_auth.key.as_ref()],&[&[metadata_bump]]],
+        &[&[token_mint.key.as_ref(),mint_auth.key.as_ref(),&[metadata_bump]]],
     )?;
 
     msg!("Create metadata");
@@ -243,7 +243,7 @@ pub fn create_new(
         // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
         // seeds
-        &[&[initializer.key.as_ref(),token_mint.key.as_ref()], &[&[mint_auth_bump]]],
+        &[&[token_mint.key.as_ref(), &[mint_auth_bump]]],
     )?;
 
     Ok(())
