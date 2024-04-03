@@ -101,7 +101,7 @@ pub fn initialize_token_mint(
             0,
         )?,
         &[token_mint.clone(), sysvar_rent.clone(), mint_auth.clone()],
-        &[&[initializer.key.as_ref(),&cid.as_ref()], &[&[mint_bump]]],
+        &[&[initializer.key.as_ref(),&cid.as_ref(),&[mint_bump]]],
     )?;
 
     msg!("Initialized token mint");
