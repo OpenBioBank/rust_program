@@ -39,6 +39,11 @@ pub fn initialize_token_mint(
         return Err(ProgramError::IncorrectProgramId);
     };
 
+    //check number of accounts
+    if accounts.len() < 7 {
+        return Err(ProgramError::NotEnoughAccountKeys);
+    };
+
     let account_info_iter = &mut accounts.iter();
 
     let initializer = next_account_info(account_info_iter)?;
