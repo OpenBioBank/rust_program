@@ -134,7 +134,7 @@ pub fn initialize_token_mint(
         ),
         &[
             initializer.clone(),
-            token_mint.clone(),
+            token_metadata.clone(),
             system_program.clone(),
         ],
         &[&[token_mint.key.as_ref(),mint_auth.key.as_ref()],&[&[metadata_bump]]],
@@ -243,7 +243,7 @@ pub fn create_new(
         // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
         // seeds
-        &[&[initializer.key.as_ref(), &[mint_auth_bump]]],
+        &[&[initializer.key.as_ref(),token_mint.key.as_ref()], &[&[mint_auth_bump]]],
     )?;
 
     Ok(())
