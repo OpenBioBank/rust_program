@@ -45,7 +45,7 @@ pub fn initialize_token_mint(
     //create mint_pda
     msg!("deriving mint authority");
     //mint_pda = initializer + programId
-    let (mint_pda, mint_bump) = Pubkey::find_program_address(&[initializer.key.as_ref()], program_id);
+    let (mint_pda, mint_bump) = Pubkey::find_program_address(&[initializer.key.as_ref(),&cid.as_ref()], program_id);
     
     //mint_ayth_pda = mint_pda + programId
     let (mint_auth_pda, _mint_auth_bump) =
@@ -78,7 +78,7 @@ pub fn initialize_token_mint(
             initializer.key,
             token_mint.key,
             rent_lamports,
-            100,
+            300,
             token_program.key,
         ),
         &[
@@ -86,7 +86,7 @@ pub fn initialize_token_mint(
             token_mint.clone(),
             system_program.clone(),
         ],
-        &[&[initializer.key.as_ref(), &[mint_bump]]],
+        &[&[initializer.key.as_ref(),&cid.as_ref()], &[&[mint_bump]]],
     )?;
 
     msg!("Created token mint account");
@@ -101,7 +101,7 @@ pub fn initialize_token_mint(
             0,
         )?,
         &[token_mint.clone(), sysvar_rent.clone(), mint_auth.clone()],
-        &[&[initializer.key.as_ref(), &[mint_bump]]],
+        &[&[initializer.key.as_ref(),&cid.as_ref()], &[&[mint_bump]]],
     )?;
 
     msg!("Initialized token mint");
@@ -117,7 +117,7 @@ pub fn initialize_token_mint(
     }
 
     let account_len: usize =
-        8 + (4 + description.len()) + (4 + owner.len()) + (4 + owner.len()) + 1 + (4 + owner.len())
+        308 + (4 + description.len()) + (4 + owner.len()) + (4 + owner.len()) + 1 + (4 + owner.len())
         + (4 + creator.len()) + (4 + url.len()) ;
     
         let rent = Rent::get()?;
@@ -127,9 +127,9 @@ pub fn initialize_token_mint(
     invoke_signed(
         &system_instruction::create_account(
             initializer.key,
-            token_mint.key,
+            token_metadata.key,
             rent_lamports,
-            100,
+            300,
             token_program.key,
         ),
         &[
@@ -137,7 +137,7 @@ pub fn initialize_token_mint(
             token_mint.clone(),
             system_program.clone(),
         ],
-        &[&[initializer.key.as_ref(), token_mint.key.as_ref(),mint_auth.key.as_ref(),&[metadata_bump]]],
+        &[&[token_mint.key.as_ref(),mint_auth.key.as_ref()],&[&[metadata_bump]]],
     )?;
 
     msg!("Create metadata");
@@ -235,7 +235,7 @@ pub fn create_new(
         &spl_token::instruction::mint_to(
             token_program.key,
             token_mint.key,
-            user_ata.key,
+            user_ata.key, //
             mint_auth.key,
             &[],
             1,
