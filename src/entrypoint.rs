@@ -1,6 +1,6 @@
 use crate::instruction::Instruction;
 
-use crate::processor::{create_new, find_cid, initialize_token_mint};
+use crate::processor::{create_new, initialize_token_mint};
 
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
@@ -28,13 +28,21 @@ fn process_instruction(
             cid,
             is_mutable,
         } => {
-            initialize_token_mint(program_id, accounts, id, owner, creator, description, authorize, url, cid, is_mutable)?;
-        },
+            initialize_token_mint(
+                program_id,
+                accounts,
+                id,
+                owner,
+                creator,
+                description,
+                authorize,
+                url,
+                cid,
+                is_mutable,
+            )?;
+        }
 
-        Instruction::FindCid => find_cid()?,
-        
         Instruction::Create => create_new(program_id, accounts)?,
-
     };
     Ok(())
 }

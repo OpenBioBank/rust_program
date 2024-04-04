@@ -271,8 +271,3 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResul
 
     Ok(())
 }
-
-pub fn find_cid() -> ProgramResult {
-    //delete account
-    todo!()
-}
