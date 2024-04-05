@@ -18,7 +18,9 @@ pub enum Instruction {
         is_mutable: bool,
     },
 
-    Create,
+    Create {
+        cid:String,
+    },
 
     Test {
         id: u64,
@@ -52,7 +54,9 @@ impl Instruction {
                 is_mutable: payload.is_mutable,
             },
 
-            1 => Self::Create,
+            1 => Self::Create {
+                cid: payload.cid,
+            },
 
             2 => Self::Test {
                 id: payload.id,

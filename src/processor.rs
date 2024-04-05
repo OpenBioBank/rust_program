@@ -3,9 +3,9 @@ use borsh::BorshSerialize;
 //use borsh::BorshSerialize;
 //use solana_program::address_lookup_table::program;
 use solana_program::borsh1::try_from_slice_unchecked;
+use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program::program_error::ProgramError;
 use solana_program::system_program;
-//use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
@@ -180,7 +180,7 @@ pub fn initialize_token_mint(
     Ok(())
 }
 
-pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) -> ProgramResult {
     //解析账户
     let account_info_iter = &mut accounts.iter();
 
@@ -225,7 +225,7 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResul
 
     msg!("deriving mint authority");
     let (mint_pda, _mint_bump) =
-        Pubkey::find_program_address(&[initializer.key.as_ref()], program_id);
+        Pubkey::find_program_address(&[initializer.key.as_ref(), &cid.as_ref()], program_id);
     let (mint_auth_pda, mint_auth_bump) =
         Pubkey::find_program_address(&[mint_pda.as_ref()], program_id);
 
@@ -258,7 +258,7 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResul
             user_ata.key, //
             mint_auth.key,
             &[],
-            1,
+            1 * LAMPORTS_PER_SOL,
         )?,
         // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],

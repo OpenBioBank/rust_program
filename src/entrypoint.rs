@@ -43,7 +43,9 @@ fn process_instruction(
             )?;
         }
 
-        Instruction::Create => create_new(program_id, accounts)?,
+        Instruction::Create {
+            cid,
+        } => create_new(program_id, accounts,cid)?,
 
         Instruction::Test {
             id,
