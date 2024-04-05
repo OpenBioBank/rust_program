@@ -1,15 +1,15 @@
 //!Defines the program state and data structures
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_program::{
-    program_pack::{IsInitialized, Pack, Sealed},
-//    pubkey::Pubkey,
-};
+use solana_program::program_pack::{IsInitialized, Pack, Sealed};
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Serialize, serde::Deserialize)
+)]
 pub struct Data {
-    cid: String,//id can be used to find the off-chain data
-    description: String,//RGB image
+    cid: String,         //id can be used to find the off-chain data
+    description: String, //RGB image
     //creator can not be deplayed
     url: String,
 }

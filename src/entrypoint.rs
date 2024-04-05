@@ -1,9 +1,9 @@
 use crate::instruction::Instruction;
 
-use crate::processor::{create_new, initialize_token_mint};
+use crate::processor::{create_new, initialize_token_mint, print_func};
 
 use solana_program::{
-    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
+    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, msg, pubkey::Pubkey,
 };
 
 entrypoint!(process_instruction);
@@ -28,6 +28,7 @@ fn process_instruction(
             cid,
             is_mutable,
         } => {
+            msg!("hello");
             initialize_token_mint(
                 program_id,
                 accounts,
@@ -43,6 +44,12 @@ fn process_instruction(
         }
 
         Instruction::Create => create_new(program_id, accounts)?,
+
+        Instruction::Test {
+            id,
+            description,
+            authorize,
+        } => print_func(id, description, authorize)?,
     };
     Ok(())
 }

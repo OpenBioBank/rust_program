@@ -44,6 +44,7 @@ pub fn initialize_token_mint(
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
+    msg!("0");
     let account_info_iter = &mut accounts.iter();
 
     let initializer = next_account_info(account_info_iter)?;
@@ -60,12 +61,7 @@ pub fn initialize_token_mint(
     let (mint_pda, mint_bump) =
         Pubkey::find_program_address(&[initializer.key.as_ref(), &cid.as_ref()], program_id);
 
-    //mint_ayth_pda = mint_pda + programId
-    let (mint_auth_pda, _mint_auth_bump) =
-        Pubkey::find_program_address(&[token_mint.key.as_ref()], program_id);
-
     msg!("Token mint: {:?}", mint_pda);
-    msg!("Mint authority: {:?}", mint_auth_pda);
 
     if mint_pda != *token_mint.key {
         msg!("Incorrect token mint account");
@@ -74,11 +70,6 @@ pub fn initialize_token_mint(
 
     if *token_program.key != TOKEN_PROGRAM_ID {
         msg!("Incorrect token program");
-        return Err(MintingError::IncorrectAccountError.into());
-    }
-
-    if *mint_auth.key != mint_auth_pda {
-        msg!("Incorrect mint auth account");
         return Err(MintingError::IncorrectAccountError.into());
     }
 
@@ -91,18 +82,30 @@ pub fn initialize_token_mint(
             initializer.key,
             token_mint.key,
             rent_lamports,
-            300,
+            82,
             token_program.key,
         ),
         &[
             initializer.clone(),
             token_mint.clone(),
             system_program.clone(),
+            //token_program.clone(),
         ],
         &[&[initializer.key.as_ref(), cid.as_bytes(), &[mint_bump]]],
     )?;
 
     msg!("Created token mint account");
+
+    //mint_ayth_pda = mint_pda + programId
+    let (mint_auth_pda, _mint_auth_bump) =
+        Pubkey::find_program_address(&[token_mint.key.as_ref()], program_id);
+
+    msg!("Mint authority: {:?}", mint_auth_pda);
+
+    if *mint_auth.key != mint_auth_pda {
+        msg!("Incorrect mint auth account");
+        return Err(MintingError::IncorrectAccountError.into());
+    }
 
     //initialize
     invoke_signed(
@@ -122,17 +125,15 @@ pub fn initialize_token_mint(
     msg!("Initialized token_metadata...");
 
     //metadata = token_mint + mint_auth + program_id
-    let (metadata_pda, metadata_bump) = Pubkey::find_program_address(
-        &[token_mint.key.as_ref(), mint_auth.key.as_ref()],
-        program_id,
-    );
+    let (metadata_pda, metadata_bump) =
+        Pubkey::find_program_address(&[token_mint.key.as_ref(), &cid.as_ref()], program_id);
 
     if metadata_pda != *token_metadata.key {
         msg!("Incorrect token metadata account");
         return Err(MintingError::IncorrectAccountError.into());
     }
 
-    let account_len: usize = 308
+    let account_len: usize = 8
         + (4 + description.len())
         + (4 + owner.len())
         + (4 + owner.len())
@@ -150,19 +151,15 @@ pub fn initialize_token_mint(
             initializer.key,
             token_metadata.key,
             rent_lamports,
-            300,
-            token_program.key,
+            account_len.try_into().unwrap(),
+            program_id,
         ),
         &[
             initializer.clone(),
             token_metadata.clone(),
             system_program.clone(),
         ],
-        &[&[
-            token_mint.key.as_ref(),
-            mint_auth.key.as_ref(),
-            &[metadata_bump],
-        ]],
+        &[&[token_mint.key.as_ref(), &cid.as_ref(), &[metadata_bump]]],
     )?;
 
     msg!("Create metadata");
@@ -269,5 +266,15 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResul
         &[&[token_mint.key.as_ref(), &[mint_auth_bump]]],
     )?;
 
+    Ok(())
+}
+
+pub fn print_func(id: u64, description: String, authorize: bool) -> ProgramResult {
+    msg!(
+        "print success id: {}, description: {}, authorize: {}",
+        id,
+        description,
+        authorize
+    );
     Ok(())
 }
