@@ -1,12 +1,15 @@
 use crate::instruction::Instruction;
 
-use crate::processor::{create_new, initialize_token_mint};
+use crate::processor::{print_func, create_new, initialize_token_mint};
 
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
 };
+use borsh::BorshDeserialize;
 
 entrypoint!(process_instruction);
+
+
 
 fn process_instruction(
     program_id: &Pubkey,
@@ -43,6 +46,12 @@ fn process_instruction(
         }
 
         Instruction::Create => create_new(program_id, accounts)?,
+
+        Instruction::Test {
+            id,
+            description,
+            authorize,
+        } => print_func(id, description, authorize)?,
     };
     Ok(())
 }

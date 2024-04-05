@@ -271,3 +271,13 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResul
 
     Ok(())
 }
+
+
+pub fn print_func(
+    id: u64,
+    description: String,
+    authorize: bool,
+) ->ProgramResult {
+    msg!("print success id: {}, description: {}, authorize: {}", id, description, authorize);
+    Ok(())
+}
