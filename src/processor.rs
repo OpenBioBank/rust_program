@@ -291,7 +291,6 @@ pub fn creat_save_account(program_id: &Pubkey, accounts: &[AccountInfo]) -> Prog
     let accounts_iter = &mut accounts.iter();
 
     let save_nft_account = next_account_info(accounts_iter)?;
-    let user = next_account_info(accounts_iter)?;
     let initializer = next_account_info(accounts_iter)?;
     let system_program = next_account_info(accounts_iter)?;
 
