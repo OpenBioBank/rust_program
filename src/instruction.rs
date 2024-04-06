@@ -19,7 +19,14 @@ pub enum Instruction {
     },
 
     Create {
-        cid:String,
+        id: u64,
+        description: String,
+        owner: String,
+        creator: String,
+        authorize: bool,
+        url: String,
+        cid: String,
+        is_mutable: bool,
     },
 
     Test {
@@ -27,6 +34,7 @@ pub enum Instruction {
         description: String,
         authorize: bool,
     },
+    InitializeSaveAccount,
 }
 
 impl Instruction {
@@ -55,7 +63,14 @@ impl Instruction {
             },
 
             1 => Self::Create {
+                id: payload.id,
+                description: payload.description,
+                owner: payload.owner,
+                creator: payload.creator,
+                authorize: payload.authorize,
+                url: payload.url,
                 cid: payload.cid,
+                is_mutable: payload.is_mutable,
             },
 
             2 => Self::Test {
@@ -63,6 +78,7 @@ impl Instruction {
                 description: payload.description,
                 authorize: payload.authorize,
             },
+            3 => Self::InitializeSaveAccount,
 
             _ => return Err(ProgramError::InvalidInstructionData),
         })

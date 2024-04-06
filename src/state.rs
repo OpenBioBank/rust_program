@@ -1,5 +1,6 @@
 //!Defines the program state and data structures
 use core::str;
+use std::clone;
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::program_pack::{IsInitialized, Pack, Sealed};
@@ -21,7 +22,7 @@ pub struct CreateMetadataAccountArgs {
     is_mutable: bool,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Debug, Clone)]
 pub struct MetadataAccount {
     pub id: u64,
     pub description: String,

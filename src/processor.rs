@@ -26,9 +26,9 @@ pub fn initialize_token_mint(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     id: u64,
-    description: String,
     owner: String,
     creator: String,
+    description: String,
     authorize: bool,
     url: String,
     cid: String,
@@ -58,8 +58,10 @@ pub fn initialize_token_mint(
     //create mint_pda
     msg!("deriving mint authority");
     //mint_pda = initializer + programId
-    let (mint_pda, mint_bump) =
-        Pubkey::find_program_address(&[initializer.key.as_ref(), &cid.as_ref()], program_id);
+    let (mint_pda, mint_bump) = Pubkey::find_program_address(
+        &[initializer.key.as_ref(), &cid.as_ref(), &id.to_le_bytes()],
+        program_id,
+    );
 
     msg!("Token mint: {:?}", mint_pda);
 
@@ -180,7 +182,18 @@ pub fn initialize_token_mint(
     Ok(())
 }
 
-pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) -> ProgramResult {
+pub fn create_new(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    id: u64,
+    owner: String,
+    creator: String,
+    description: String,
+    authorize: bool,
+    url: String,
+    cid: String,
+    is_mutable: bool,
+) -> ProgramResult {
     //解析账户
     let account_info_iter = &mut accounts.iter();
 
@@ -192,8 +205,10 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
     let save_nft = next_account_info(account_info_iter)?;
 
     msg!("deriving mint authority");
-    let (mint_pda, _mint_bump) =
-        Pubkey::find_program_address(&[initializer.key.as_ref(), &cid.as_ref()], program_id);
+    let (mint_pda, _mint_bump) = Pubkey::find_program_address(
+        &[initializer.key.as_ref(), &cid.as_ref(), &id.to_le_bytes()],
+        program_id,
+    );
     let (mint_auth_pda, mint_auth_bump) =
         Pubkey::find_program_address(&[mint_pda.as_ref()], program_id);
     let (save_nft_pda, _) = Pubkey::find_program_address(&["save".as_ref()], program_id);
@@ -244,7 +259,20 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
     )?;
 
     msg!("save nft");
-    let nfts: Vec<MetadataAccount> = Vec::try_from_slice(&save_nft.data.borrow())?;
+    let mut nfts: Vec<MetadataAccount> = Vec::try_from_slice(&save_nft.data.borrow())?;
+    let new_nft = MetadataAccount {
+        id,
+        description,
+        owner,
+        creator,
+        authorize,
+        url,
+        is_initialized: true,
+        cid,
+        is_mutable,
+    };
+    nfts.push(new_nft);
+    nfts.serialize(&mut &mut save_nft.data.borrow_mut()[..])?;
 
     Ok(())
 }
@@ -259,8 +287,41 @@ pub fn print_func(id: u64, description: String, authorize: bool) -> ProgramResul
     Ok(())
 }
 
-#[test]
-fn test() {
-    let r = "".as_ref();
-    dbg!(nfts);
+pub fn creat_save_account(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    let accounts_iter = &mut accounts.iter();
+
+    let save_nft_account = next_account_info(accounts_iter)?;
+    let user = next_account_info(accounts_iter)?;
+    let initializer = next_account_info(accounts_iter)?;
+    let system_program = next_account_info(accounts_iter)?;
+
+    let account_span = 10 * 1024 * 1024;
+    let lamports_required = (Rent::get()?).minimum_balance(account_span);
+
+    let (save_nft_pda, save_nft_bump) =
+        Pubkey::find_program_address(&["save_nft".as_bytes()], program_id);
+
+    if *save_nft_account.key != save_nft_pda {
+        msg!("Incorrect save_nft account");
+        return Err(MintingError::IncorrectAccountError.into());
+    }
+
+    invoke_signed(
+        &system_instruction::create_account(
+            initializer.key,
+            save_nft_account.key,
+            lamports_required,
+            account_span as u64,
+            program_id,
+        ),
+        &[
+            initializer.clone(),
+            save_nft_account.clone(),
+            system_program.clone(),
+        ],
+        &[&["save_nft".as_bytes(), &[save_nft_bump]]],
+    )?;
+    let nfts: Vec<MetadataAccount> = Vec::new();
+    nfts.serialize(&mut &mut save_nft_account.data.borrow_mut()[..])?;
+    Ok(())
 }

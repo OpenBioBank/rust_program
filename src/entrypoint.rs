@@ -1,6 +1,6 @@
 use crate::instruction::Instruction;
 
-use crate::processor::{create_new, initialize_token_mint, print_func};
+use crate::processor::{creat_save_account, create_new, initialize_token_mint, print_func};
 
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, msg, pubkey::Pubkey,
@@ -43,13 +43,34 @@ fn process_instruction(
             )?;
         }
 
-        Instruction::Create { cid } => create_new(program_id, accounts, cid)?,
+        Instruction::Create {
+            id,
+            owner,
+            creator,
+            description,
+            authorize,
+            url,
+            cid,
+            is_mutable,
+        } => create_new(
+            program_id,
+            accounts,
+            id,
+            owner,
+            creator,
+            description,
+            authorize,
+            url,
+            cid,
+            is_mutable,
+        )?,
 
         Instruction::Test {
             id,
             description,
             authorize,
         } => print_func(id, description, authorize)?,
+        Instruction::InitializeSaveAccount => creat_save_account(program_id, accounts)?,
     };
     Ok(())
 }
