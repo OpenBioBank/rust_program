@@ -1,5 +1,5 @@
 use crate::error::MintingError;
-use borsh::BorshSerialize;
+use borsh::{BorshDeserialize, BorshSerialize};
 //use borsh::BorshSerialize;
 //use solana_program::address_lookup_table::program;
 use solana_program::borsh1::try_from_slice_unchecked;
@@ -185,49 +185,18 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
     let account_info_iter = &mut accounts.iter();
 
     let initializer = next_account_info(account_info_iter)?;
-
-    //fronted:
-    // const [tokenMint] = await web3.PublicKey.findProgramAddress(
-    //     [Buffer.from("token_mint")],
-    //     new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-    // )
-
-    // const [mintAuth] = await web3.PublicKey.findProgramAddress(
-    //     [Buffer.from("token_auth")],
-    //     new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-    // )
     let token_mint = next_account_info(account_info_iter)?;
     let mint_auth = next_account_info(account_info_iter)?;
-
-    //fronted:
-    // const userAta = await getAssociatedTokenAddress(tokenMint, publicKey)
-    // const ataAccount = await connection.getAccountInfo(userAta)
-
-    // if (!ataAccount) {
-    //     const ataInstruction = createAssociatedTokenAccountInstruction(
-    //         publicKey,
-    //         userAta,
-    //         publicKey,
-    //         tokenMint
-    //     )
-
-    //     transaction.add(ataInstruction)
-    // }
-    let user_ata = next_account_info(account_info_iter)?;
     let token_program = next_account_info(account_info_iter)?;
-
-    // To create a new account in our plan we must:
-    // Calculate the space and rent required for the account
-    // Have an address to assign new accounts to
-    // Call the system program to create a new account
-
-    // Calculate rent required
+    let user_ata = next_account_info(account_info_iter)?;
+    let save_nft = next_account_info(account_info_iter)?;
 
     msg!("deriving mint authority");
     let (mint_pda, _mint_bump) =
         Pubkey::find_program_address(&[initializer.key.as_ref(), &cid.as_ref()], program_id);
     let (mint_auth_pda, mint_auth_bump) =
         Pubkey::find_program_address(&[mint_pda.as_ref()], program_id);
+    let (save_nft_pda, _) = Pubkey::find_program_address(&["save".as_ref()], program_id);
 
     if *token_mint.key != mint_pda {
         msg!("Incorrect token mint");
@@ -248,6 +217,14 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
         msg!("Incorrect token program");
         return Err(MintingError::IncorrectAccountError.into());
     }
+    if *save_nft.key != save_nft_pda {
+        msg!("Incorrect save_nft account");
+        return Err(MintingError::IncorrectAccountError.into());
+    }
+    if save_nft.lamports() == 0 {
+        msg!("sava_nft account not init ");
+        return Err(MintingError::InvalidPDA.into());
+    }
 
     msg!("Minting 1 tokens to User associated token account");
     invoke_signed(
@@ -266,6 +243,9 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
         &[&[token_mint.key.as_ref(), &[mint_auth_bump]]],
     )?;
 
+    msg!("save nft");
+    let nfts: Vec<MetadataAccount> = Vec::try_from_slice(&save_nft.data.borrow())?;
+
     Ok(())
 }
 
@@ -277,4 +257,10 @@ pub fn print_func(id: u64, description: String, authorize: bool) -> ProgramResul
         authorize
     );
     Ok(())
+}
+
+#[test]
+fn test() {
+    let r = "".as_ref();
+    dbg!(nfts);
 }
