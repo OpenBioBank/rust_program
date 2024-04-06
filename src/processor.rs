@@ -250,7 +250,7 @@ pub fn create_new(
             user_ata.key, //
             mint_auth.key,
             &[],
-            1 * LAMPORTS_PER_SOL,
+            1,
         )?,
         // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
