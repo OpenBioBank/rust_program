@@ -8,7 +8,7 @@ use solana_program::program_error::ProgramError;
 #[derive(Debug)]
 pub enum Instruction {
     InitializeMintAccount {
-        id: u64,
+        id: u32,
         description: String,
         owner: String,
         creator: String,
@@ -23,7 +23,7 @@ pub enum Instruction {
     },
 
     Test {
-        id: u64,
+        id: u32,
         description: String,
         authorize: bool,
     },
@@ -70,8 +70,8 @@ impl Instruction {
 }
 #[derive(BorshDeserialize)]
 struct InstructionPayload {
-    methods_id: u64,
-    id: u64,
+    methods_id: u32,
+    id: u32,
     description: String,
     owner: String,
     creator: String,

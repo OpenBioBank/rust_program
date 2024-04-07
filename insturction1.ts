@@ -52,8 +52,8 @@ import {
       {
         kind: "struct",
         fields: [
-          ["methods_id", "u64"],
-          ["id", "u64"],
+          ["methods_id", "u32"],
+          ["id", "u32"],
           ["description", "string"],
           ["owner", "string"],
           ["creator", "string"],

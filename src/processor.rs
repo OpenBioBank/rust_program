@@ -25,7 +25,7 @@ use crate::state::MetadataAccount;
 pub fn initialize_token_mint(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    id: u64,
+    id: u32,
     description: String,
     owner: String,
     creator: String,
@@ -269,7 +269,7 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
     Ok(())
 }
 
-pub fn print_func(id: u64, description: String, authorize: bool) -> ProgramResult {
+pub fn print_func(id: u32, description: String, authorize: bool) -> ProgramResult {
     msg!(
         "print success id: {}, description: {}, authorize: {}",
         id,

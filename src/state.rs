@@ -24,7 +24,7 @@ pub struct CreateMetadataAccountArgs {
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct MetadataAccount {
-    pub id: u64,
+    pub id: u32,
     pub description: String,
     pub owner: String,
     pub creator: String,
