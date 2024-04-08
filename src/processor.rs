@@ -3,7 +3,6 @@ use borsh::BorshSerialize;
 //use borsh::BorshSerialize;
 //use solana_program::address_lookup_table::program;
 use solana_program::borsh1::try_from_slice_unchecked;
-use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program::program_error::ProgramError;
 use solana_program::system_program;
 use solana_program::{
@@ -185,41 +184,10 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
     let account_info_iter = &mut accounts.iter();
 
     let initializer = next_account_info(account_info_iter)?;
-
-    //fronted:
-    // const [tokenMint] = await web3.PublicKey.findProgramAddress(
-    //     [Buffer.from("token_mint")],
-    //     new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-    // )
-
-    // const [mintAuth] = await web3.PublicKey.findProgramAddress(
-    //     [Buffer.from("token_auth")],
-    //     new web3.PublicKey(MOVIE_REVIEW_PROGRAM_ID)
-    // )
     let token_mint = next_account_info(account_info_iter)?;
     let mint_auth = next_account_info(account_info_iter)?;
-
-    //fronted:
-    // const userAta = await getAssociatedTokenAddress(tokenMint, publicKey)
-    // const ataAccount = await connection.getAccountInfo(userAta)
-
-    // if (!ataAccount) {
-    //     const ataInstruction = createAssociatedTokenAccountInstruction(
-    //         publicKey,
-    //         userAta,
-    //         publicKey,
-    //         tokenMint
-    //     )
-
-    //     transaction.add(ataInstruction)
-    // }
     let user_ata = next_account_info(account_info_iter)?;
     let token_program = next_account_info(account_info_iter)?;
-
-    // To create a new account in our plan we must:
-    // Calculate the space and rent required for the account
-    // Have an address to assign new accounts to
-    // Call the system program to create a new account
 
     // Calculate rent required
 
@@ -258,7 +226,7 @@ pub fn create_new(program_id: &Pubkey, accounts: &[AccountInfo], cid: String) ->
             user_ata.key, //
             mint_auth.key,
             &[],
-            1 * LAMPORTS_PER_SOL,
+            1,
         )?,
         // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
