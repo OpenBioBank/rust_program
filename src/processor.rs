@@ -25,9 +25,9 @@ pub fn initialize_token_mint(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     id: u32,
-    description: String,
     owner: String,
     creator: String,
+    description: String,
     authorize: bool,
     url: String,
     cid: String,
@@ -173,6 +173,7 @@ pub fn initialize_token_mint(
     account_data.owner = owner;
     account_data.url = url;
     account_data.is_mutable = is_mutable;
+    account_data.is_initialized = true;
 
     account_data.serialize(&mut &mut token_metadata.data.borrow_mut()[..])?;
 
